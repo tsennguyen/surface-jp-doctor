@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SURFACE // JIS-106 DOCTOR — Chẩn Đoán & Fix Bàn Phím Surface Nội Địa Nhật</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+  <!-- Iconify Solar Duotone & Linear Icons (Aura.build standard) -->
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+  <!-- GSAP for Masked Word Reveal -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    :root, [data-theme="dark"] {
+      --bg-outer: #07090E;
+      --bg-shell: #0C1018;
+      --bg-card: #121824;
+      --bg-card-alt: #0E131D;
+      --bg-key: #182030;
+      --bg-key-top: #1E283B;
+      --text-main: #F3F6FC;
+      --text-muted: #94A3B8;
+      --text-dim: #64748B;
+      --accent: #F97316;
+      --accent-soft: rgba(249, 115, 22, 0.14);
+      --accent-border: rgba(249, 115, 22, 0.45);
+      --emerald: #10B981;
+      --emerald-soft: rgba(16, 185, 129, 0.15);
+      --cyan: #38BDF8;
+      --cyan-soft: rgba(56, 189, 248, 0.14);
+      --aura-rail-color: rgba(148, 163, 184, 0.14);
+      --aura-rail-strong: rgba(249, 115, 22, 0.55);
+      --aura-sq-bg: #0C1018;
+      --aura-edge-hi: rgba(255, 255, 255, 0.24);
+      --aura-edge-mid: rgba(255, 255, 255, 0.07);
+      --aura-edge-lo: rgba(255, 255, 255, 0.02);
+      --shadow-shell: 0 24px 60px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      --shadow-key: 0 4px 0 #070A10, 0 6px 12px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    }
+
+    [data-theme="light"] {
+      --bg-outer: #EFECE5;
+      --bg-shell: #FCF9F5;
+      --bg-card: #FFFFFF;
+      --bg-card-alt: #F5F1EA;
+      --bg-key: #F3EFE8;
+      --bg-key-top: #FFFFFF;
+      --text-main: #111827;
+      --text-muted: #4B5563;
+      --text-dim: #6B7280;
+      --accent: #EA580C;
+      --accent-soft: rgba(234, 88, 12, 0.1);
+      --accent-border: rgba(234, 88, 12, 0.4);
+      --emerald: #059669;
+      --emerald-soft: rgba(5, 150, 105, 0.12);
+      --cyan: #0284C7;
+      --cyan-soft: rgba(2, 132, 199, 0.1);
+      --aura-rail-color: rgba(17, 24, 39, 0.1);
+      --aura-rail-strong: rgba(234, 88, 12, 0.5);
+      --aura-sq-bg: #FCF9F5;
+      --aura-edge-hi: rgba(17, 24, 39, 0.18);
+      --aura-edge-mid: rgba(17, 24, 39, 0.08);
+      --aura-edge-lo: rgba(17, 24, 39, 0.03);
+      --shadow-shell: 0 20px 50px rgba(17, 24, 39, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      --shadow-card: 0 4px 20px rgba(17, 24, 39, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+      --shadow-key: 0 3px 0 #D6D0C4, 0 5px 10px rgba(17, 24, 39, 0.08), inset 0 1px 0 #FFFFFF;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      background: var(--bg-outer);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.5;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .display { font-family: 'Space Grotesk', sans-serif; }
+
+    /* Signature 1: Progressive Backdrop Blur Top Navigation */
+    .progressive-blur-nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      background: linear-gradient(to bottom, rgba(12, 16, 24, 0.86), rgba(12, 16, 24, 0.62));
+      border-bottom: 1px solid var(--aura-rail-color);
+    }
+    [data-theme="light"] .progressive-blur-nav {
+      background: linear-gradient(to bottom, rgba(252, 249, 245, 0.9), rgba(252, 249, 245, 0.72));
+    }
+
+    /* Signature 2: Structural Rail Grid + 5px Corner Squares + L-Brackets */
+    .aura-rail-shell {
+      max-width: 1280px;
+      margin: 0 auto;
+      position: relative;
+      border-left: 1px solid var(--aura-rail-color);
+      border-right: 1px solid var(--aura-rail-color);
+      padding: 1.25rem;
+    }
+    .aura-section {
+      position: relative;
+      border-top: 1px solid var(--aura-rail-color);
+      padding: 1.75rem 0;
+    }
+    .aura-corner-sq {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      background: var(--aura-sq-bg);
+      border: 1px solid var(--aura-rail-strong);
+      z-index: 20;
+      pointer-events: none;
+    }
+    .aura-corner-sq.tl { top: -3px; left: -3px; }
+    .aura-corner-sq.tr { top: -3px; right: -3px; }
+    .aura-corner-sq.bl { bottom: -3px; left: -3px; }
+    .aura-corner-sq.br { bottom: -3px; right: -3px; }
+
+    .aura-frame-brackets {
+      --br-color: var(--aura-rail-strong);
+      --br-size: 12px;
+      background-image:
+        linear-gradient(var(--br-color), var(--br-color)),
+        linear-gradient(var(--br-color), var(--br-color)),
+        linear-gradient(var(--br-color), var(--br-color)),
+        linear-gradient(var(--br-color), var(--br-color)),
+        linear-gradient(var(--br-color), var(--br-color)),
+        linear-gradient(var(--br-color), var(--br-color)),
+        linear-gradient(var(--br-color), var(--br-color)),
+        linear-gradient(var(--br-color), var(--br-color));
+      background-position:
+        left top, left top,
+        right top, right top,
+        left bottom, left bottom,
+        right bottom, right bottom;
+      background-size:
+        var(--br-size) 1px, 1px var(--br-size),
+        var(--br-size) 1px, 1px var(--br-size),
+        var(--br-size) 1px, 1px var(--br-size),
+        var(--br-size) 1px, 1px var(--br-size);
+      background-repeat: no-repeat;
+    }
+
+    /* Signature 3: Nested Master Shell & Top Specular Shine */
+    .master-shell {
+      position: relative;
+      background: var(--bg-shell);
+      border-radius: 2rem;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-shell);
+      border: 1px solid var(--aura-rail-color);
+      overflow: hidden;
+    }
+    .aura-top-shine {
+      position: absolute;
+      top: 0;
+      left: 10%;
+      right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(249, 115, 22, 0.75), rgba(255, 255, 255, 0.85), rgba(56, 189, 248, 0.75), transparent);
+      pointer-events: none;
+    }
+
+    /* Signature 4: Specular 1px Gradient Border & Tactile Cards */
+    .aura-border-gradient {
+      position: relative;
+      background: var(--bg-card);
+      border-radius: 1.25rem;
+      box-shadow: var(--shadow-card);
+    }
+    .aura-border-gradient::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(135deg, var(--aura-edge-hi) 0%, var(--aura-edge-mid) 45%, var(--aura-edge-lo) 100%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Navigation Bar Layout */
+    .nav-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: -0.01em;
+    }
+    .pill-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--accent-border);
+    }
+    .btn-tactile {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 0.55rem 0.95rem;
+      border-radius: 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--aura-rail-color);
+      background: var(--bg-card);
+      color: var(--text-main);
+      box-shadow: var(--shadow-card);
+      transition: all 0.15s ease;
+    }
+    .btn-tactile:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .btn-primary {
+      background: linear-gradient(180deg, #FB923C 0%, #EA580C 100%);
+      color: #FFFFFF;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 4px 14px rgba(234, 88, 12, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(180deg, #F97316 0%, #C2410C 100%);
+      color: #FFFFFF;
+    }
+
+    /* Command Grid */
+    .cmd-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+    .cmd-card {
+      padding: 1.15rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+    .cmd-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      background: var(--bg-card-alt);
+      border: 1px solid var(--aura-rail-color);
+      padding: 0.65rem 0.85rem;
+      border-radius: 0.75rem;
+      font-size: 0.78rem;
+      overflow-x: auto;
+    }
+    .cmd-box code {
+      color: var(--cyan);
+      white-space: nowrap;
+    }
+
+    /* Skeuomorphic JIS/US Visual Keyboard Matrix */
+    .kbd-shell {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--aura-rail-color);
+      border-radius: 1.25rem;
+      padding: 1rem;
+      overflow-x: auto;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.25);
+    }
+    .kbd-row {
+      display: flex;
+      gap: 0.4rem;
+      margin-bottom: 0.45rem;
+      min-width: 780px;
+    }
+    .kbd-row:last-child { margin-bottom: 0; }
+    .keycap {
+      position: relative;
+      flex: 1;
+      min-width: 46px;
+      height: 56px;
+      background: linear-gradient(180deg, var(--bg-key-top) 0%, var(--bg-key) 100%);
+      border: 1px solid var(--aura-rail-color);
+      border-radius: 0.6rem;
+      padding: 0.35rem 0.45rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow-key);
+      user-select: none;
+      transition: transform 0.06s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+    .keycap.wide-15 { flex: 1.5; }
+    .keycap.wide-20 { flex: 2.1; }
+    .keycap.space { flex: 3.6; }
+    /* Highlight the ()= Target Cluster on Japanese Surface */
+    .keycap.target-zone {
+      border-color: var(--accent);
+      background: linear-gradient(180deg, rgba(249, 115, 22, 0.22) 0%, var(--bg-key) 100%);
+    }
+    .keycap.jis-thumb {
+      border-color: rgba(56, 189, 248, 0.45);
+    }
+    .keycap.active {
+      transform: translateY(3px);
+      border-color: var(--emerald) !important;
+      background: var(--emerald-soft) !important;
+    }
+    .keycap.tested {
+      border-color: var(--emerald);
+      box-shadow: 0 3px 0 rgba(16, 185, 129, 0.4), inset 0 0 0 1px rgba(16, 185, 129, 0.45);
+    }
+    .key-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .key-main {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .key-us {
+      font-size: 0.62rem;
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+
+    /* Telemetry Strip */
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    .telemetry-item {
+      background: var(--bg-card);
+      border: 1px solid var(--aura-rail-color);
+      border-radius: 0.85rem;
+      padding: 0.75rem 0.9rem;
+    }
+    .verdict-box {
+      margin-top: 1rem;
+      padding: 1rem 1.15rem;
+      border-radius: 1rem;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-border);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    /* Comparison Table */
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 1rem;
+      border-radius: 1rem;
+      border: 1px solid var(--aura-rail-color);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      background: var(--bg-card);
+    }
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--aura-rail-color);
+    }
+    th {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      background: var(--bg-card-alt);
+    }
+
+    .test-input {
+      width: 100%;
+      margin-top: 0.85rem;
+      padding: 0.8rem 1rem;
+      border-radius: 0.85rem;
+      border: 1px solid var(--accent-border);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    /* Word reveal mask */
+    .word-mask { display: inline-block; overflow: hidden; vertical-align: bottom; }
+    .word-inner { display: inline-block; }
+
+    @media (max-width: 768px) {
+      .aura-rail-shell { padding: 0.65rem; }
+      .master-shell { padding: 1rem; border-radius: 1.35rem; }
+      .cmd-grid { grid-template-columns: 1fr; }
+      .telemetry-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Signature 4: Progressive Blur Sticky Header -->
+  <header class="progressive-blur-nav">
+    <div class="nav-inner">
+      <div class="brand-badge">
+        <iconify-icon icon="solar:keyboard-bold-duotone" style="font-size: 1.4rem; color: var(--accent);"></iconify-icon>
+        <span class="display">SURFACE // JIS-106 DOCTOR</span>
+        <span class="pill-tag mono">v1.0 · JP AUCTION EDITION</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <button class="btn-tactile" id="themeToggle" type="button" aria-label="Đổi giao diện Sáng/Tối">
+          <iconify-icon icon="solar:sun-2-bold-duotone" style="font-size: 1.1rem; color: var(--accent);"></iconify-icon>
+          <span class="mono" id="themeLabel">DARK // LIGHT</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="aura-rail-shell">
+    <span class="aura-corner-sq tl"></span>
+    <span class="aura-corner-sq tr"></span>
+    <span class="aura-corner-sq bl"></span>
+    <span class="aura-corner-sq br"></span>
+
+    <!-- Master Outer Shell -->
+    <div class="master-shell">
+      <div class="aura-top-shine"></div>
+
+      <!-- SECTION 01: HERO & 1-CLICK COPY LAUNCHER -->
+      <section class="aura-section" style="border-top: none; padding-top: 0.25rem;">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;">
+          <div style="max-width: 760px;">
+            <div class="pill-tag mono" style="margin-bottom: 0.65rem;">
+              <iconify-icon icon="solar:shield-check-bold-duotone"></iconify-icon>
+              <span>01 // ZERO-TYPING CAFE LAUNCHER (CHỐNG KẸT KÝ TỰ ĐẶC BIỆT)</span>
+            </div>
+            <h1 class="display" data-aura-reveal style="font-size: clamp(1.55rem, 3.2vw, 2.35rem); line-height: 1.18; margin-bottom: 0.5rem;">
+              Trạm Chẩn Đoán &amp; Sửa Lỗi Cụm Phím ()= Cho Surface Nội Địa Nhật
+            </h1>
+            <p style="color: var(--text-muted); font-size: 0.92rem;">
+              Vì bàn phím đang bị lệch hoặc liệt cụm <strong><code>()=</code></strong>, bạn <strong>không cần gõ tay lệnh dài</strong>: chỉ cần bấm nút <strong>Copy</strong> bên dưới, mở <strong>PowerShell (Run as Administrator)</strong> rồi bấm <strong>Chuột phải (Paste) → Enter</strong>.
+            </p>
+          </div>
+        </div>
+
+        <div class="cmd-grid">
+          <!-- Card 1: Instant PowerShell Doctor -->
+          <div class="aura-border-gradient aura-frame-brackets cmd-card">
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.45rem;">
+                <span class="pill-tag mono" style="background: var(--emerald-soft); color: var(--emerald); border-color: rgba(16,185,129,0.4);">
+                  <iconify-icon icon="solar:bolt-bold-duotone"></iconify-icon>
+                  CÁCH 1 · SIÊU TỐC 10 GIÂY (KHUYÊN DÙNG)
+                </span>
+                <span class="mono" style="font-size: 0.72rem; color: var(--text-dim);">Không cần login Google</span>
+              </div>
+              <h2 style="font-size: 1.02rem; font-weight: 700; margin-bottom: 0.25rem;">
+                Chạy Trực Tiếp Bộ Khám Máy &amp; Fix Cụm <code>()=</code> Ngay Lập Tức
+              </h2>
+              <p style="font-size: 0.82rem; color: var(--text-muted);">
+                Tự kiểm tra Driver <code>kbd106/kbd101</code>, Pin (Cycle Count &amp; % Chai), SSD, và bật chế độ <strong>Lai Thông Minh / Cứu Phím Liệt</strong> ăn ngay không cần khởi động lại máy.
+              </p>
+            </div>
+            <div class="cmd-box mono">
+              <code id="cmdRun">irm https://tsennguyen.github.io/surface-jp-doctor/run.ps1 | iex</code>
+              <button class="btn-tactile btn-primary" type="button" onclick="copyText('cmdRun', this)">
+                <iconify-icon icon="solar:copy-bold-duotone"></iconify-icon>
+                <span>Copy Lệnh 1</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Card 2: Antigravity CLI (agy) Auto-Setup -->
+          <div class="aura-border-gradient aura-frame-brackets cmd-card">
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.45rem;">
+                <span class="pill-tag mono">
+                  <iconify-icon icon="solar:cpu-bolt-bold-duotone"></iconify-icon>
+                  CÁCH 2 · AUTO CÀI ANTIGRAVITY CLI (AGY)
+                </span>
+                <span class="mono" style="font-size: 0.72rem; color: var(--text-dim);">Tự tải Repo + Copy sẵn Prompt</span>
+              </div>
+              <h2 style="font-size: 1.02rem; font-weight: 700; margin-bottom: 0.25rem;">
+                1 Lệnh Tự Cài <code>agy</code> + Tải Repo Về <code>C:\surface-jp-doctor</code>
+              </h2>
+              <p style="font-size: 0.82rem; color: var(--text-muted);">
+                Tự cài đặt <code>agy</code> chính chủ, tải sẵn <code>AGENTS.md</code> và tự nạp câu Prompt vào Clipboard. Khi vào <code>agy</code>, chỉ cần bấm <strong>Ctrl+V → Enter</strong> (hoặc gõ chữ <code>khám</code>).
+              </p>
+            </div>
+            <div class="cmd-box mono">
+              <code id="cmdAgy">irm https://tsennguyen.github.io/surface-jp-doctor/agy-go.ps1 | iex</code>
+              <button class="btn-tactile" type="button" onclick="copyText('cmdAgy', this)">
+                <iconify-icon icon="solar:copy-bold-duotone"></iconify-icon>
+                <span>Copy Lệnh AGY</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Card 3: Starter Prompt for agy -->
+          <div class="aura-border-gradient cmd-card">
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.35rem;">
+                <span class="mono" style="font-size: 0.75rem; font-weight: 600; color: var(--cyan);">
+                  <iconify-icon icon="solar:chat-square-code-bold-duotone"></iconify-icon>
+                  PROMPT GỌN CHO AGENT (NẾU MỞ AGY THỦ CÔNG)
+                </span>
+              </div>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">
+                Nếu đã cài và đăng nhập <code>agy</code> ở bất kỳ thư mục nào, dán câu này để Agent tự tải repo và xử lý từ A-Z:
+              </p>
+            </div>
+            <div class="cmd-box mono">
+              <code id="cmdPrompt">Chạy powershell: irm https://tsennguyen.github.io/surface-jp-doctor/run.ps1 -OutFile C:\run.ps1; đọc C:\surface-jp-doctor\AGENTS.md, chạy scripts\diagnose.ps1 và fix lỗi cụm phím ()= trên máy Surface Nhật này (chế độ HybridInstant hoặc DeadKeyRescue), rồi báo cáo Pin/SSD/Driver bằng tiếng Việt.</code>
+              <button class="btn-tactile" type="button" onclick="copyText('cmdPrompt', this)">
+                <iconify-icon icon="solar:copy-bold-duotone"></iconify-icon>
+                <span>Copy Prompt</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Card 4: Clean Logout Before Leaving Cafe -->
+          <div class="aura-border-gradient cmd-card">
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.35rem;">
+                <span class="mono" style="font-size: 0.75rem; font-weight: 600; color: var(--accent);">
+                  <iconify-icon icon="solar:shield-warning-bold-duotone"></iconify-icon>
+                  DỌN SẠCH TÀI KHOẢN AGY TRƯỚC KHI VỀ
+                </span>
+              </div>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">
+                Xoá sạch phiên đăng nhập Google / <code>.gemini</code> / <code>agy</code> trên máy khách nhưng <strong>giữ nguyên 100% bộ fix bàn phím Surface</strong>:
+              </p>
+            </div>
+            <div class="cmd-box mono">
+              <code id="cmdClean">irm https://tsennguyen.github.io/surface-jp-doctor/agy-clean.ps1 | iex</code>
+              <button class="btn-tactile" type="button" onclick="copyText('cmdClean', this)">
+                <iconify-icon icon="solar:copy-bold-duotone"></iconify-icon>
+                <span>Copy Lệnh Dọn</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 02: INTERACTIVE JIS VS US KEYBOARD MATRIX TESTER -->
+      <section class="aura-section">
+        <span class="aura-corner-sq tl"></span>
+        <span class="aura-corner-sq tr"></span>
+
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 1rem;">
+          <div>
+            <div class="pill-tag mono" style="margin-bottom: 0.4rem;">
+              <iconify-icon icon="solar:tuning-square-2-bold-duotone"></iconify-icon>
+              <span>02 // LIVE HARDWARE SIGNAL MATRIX (JIS 106 ↔ US 101)</span>
+            </div>
+            <h2 class="display" style="font-size: 1.3rem;">
+              Bấm Thử Các Phím Viền Cam (<code>8 (</code> · <code>9 )</code> · <code>0</code> · <code>- =</code> · <code>^ ~</code> · <code>¥ |</code>) Trên Bàn Phím
+            </h2>
+          </div>
+          <button class="btn-tactile" type="button" onclick="resetTester()">
+            <iconify-icon icon="solar:restart-bold-duotone"></iconify-icon>
+            <span>Reset Đèn Test</span>
+          </button>
+        </div>
+
+        <div class="kbd-shell">
+          <!-- Row 1: Number & ()= Cluster -->
+          <div class="kbd-row">
+            <div class="keycap" data-code="Backquote">
+              <div class="key-top"><span>半/全</span><span>`</span></div>
+              <div class="key-main">漢字</div>
+              <div class="key-us">US: ~ `</div>
+            </div>
+            <div class="keycap" data-code="Digit1">
+              <div class="key-top"><span>!</span></div>
+              <div class="key-main">1</div>
+              <div class="key-us">US: 1 !</div>
+            </div>
+            <div class="keycap" data-code="Digit2">
+              <div class="key-top"><span>"</span></div>
+              <div class="key-main">2</div>
+              <div class="key-us">US: 2 @</div>
+            </div>
+            <div class="keycap" data-code="Digit3">
+              <div class="key-top"><span>#</span></div>
+              <div class="key-main">3</div>
+              <div class="key-us">US: 3 #</div>
+            </div>
+            <div class="keycap" data-code="Digit4">
+              <div class="key-top"><span>$</span></div>
+              <div class="key-main">4</div>
+              <div class="key-us">US: 4 $</div>
+            </div>
+            <div class="keycap" data-code="Digit5">
+              <div class="key-top"><span>%</span></div>
+              <div class="key-main">5</div>
+              <div class="key-us">US: 5 %</div>
+            </div>
+            <div class="keycap" data-code="Digit6">
+              <div class="key-top"><span>&amp;</span></div>
+              <div class="key-main">6</div>
+              <div class="key-us">US: 6 ^</div>
+            </div>
+            <div class="keycap" data-code="Digit7">
+              <div class="key-top"><span>'</span></div>
+              <div class="key-main">7</div>
+              <div class="key-us">US: 7 &amp;</div>
+            </div>
+            <div class="keycap target-zone" data-code="Digit8" data-target="1">
+              <div class="key-top"><span>(</span><span class="mono">JIS</span></div>
+              <div class="key-main">8</div>
+              <div class="key-us">US: *</div>
+            </div>
+            <div class="keycap target-zone" data-code="Digit9" data-target="1">
+              <div class="key-top"><span>)</span><span class="mono">JIS</span></div>
+              <div class="key-main">9</div>
+              <div class="key-us">US: (</div>
+            </div>
+            <div class="keycap target-zone" data-code="Digit0" data-target="1">
+              <div class="key-top"><span>わ</span><span class="mono">JIS</span></div>
+              <div class="key-main">0</div>
+              <div class="key-us">US: )</div>
+            </div>
+            <div class="keycap target-zone" data-code="Minus" data-target="1">
+              <div class="key-top"><span>=</span><span class="mono">JIS</span></div>
+              <div class="key-main">-</div>
+              <div class="key-us">US: _</div>
+            </div>
+            <div class="keycap target-zone" data-code="Equal" data-target="1">
+              <div class="key-top"><span>~</span><span class="mono">JIS</span></div>
+              <div class="key-main">^</div>
+              <div class="key-us">US: = +</div>
+            </div>
+            <div class="keycap target-zone" data-code="IntlYen" data-target="1">
+              <div class="key-top"><span>|</span><span class="mono">JIS</span></div>
+              <div class="key-main">¥</div>
+              <div class="key-us">JIS Only</div>
+            </div>
+            <div class="keycap wide-15" data-code="Backspace">
+              <div class="key-top"><span>⌫</span></div>
+              <div class="key-main">Bksp</div>
+              <div class="key-us">Delete</div>
+            </div>
+          </div>
+
+          <!-- Row 2: Special JIS Punctuation + Bottom Thumb Keys -->
+          <div class="kbd-row">
+            <div class="keycap" data-code="BracketLeft">
+              <div class="key-top"><span>`</span></div>
+              <div class="key-main">@</div>
+              <div class="key-us">US: [ {</div>
+            </div>
+            <div class="keycap" data-code="BracketRight">
+              <div class="key-top"><span>{</span></div>
+              <div class="key-main">[</div>
+              <div class="key-us">US: ] }</div>
+            </div>
+            <div class="keycap" data-code="Semicolon">
+              <div class="key-top"><span>+</span></div>
+              <div class="key-main">;</div>
+              <div class="key-us">US: ; :</div>
+            </div>
+            <div class="keycap" data-code="Quote">
+              <div class="key-top"><span>*</span></div>
+              <div class="key-main">:</div>
+              <div class="key-us">US: ' "</div>
+            </div>
+            <div class="keycap" data-code="Backslash">
+              <div class="key-top"><span>}</span></div>
+              <div class="key-main">]</div>
+              <div class="key-us">US: \ |</div>
+            </div>
+            <div class="keycap jis-thumb" data-code="IntlRo">
+              <div class="key-top"><span>_</span><span class="mono">JIS</span></div>
+              <div class="key-main">\ ろ</div>
+              <div class="key-us">Cạnh Shift</div>
+            </div>
+            <div class="keycap jis-thumb wide-15" data-code="NonConvert">
+              <div class="key-top"><span>無変換</span></div>
+              <div class="key-main">Trái Space</div>
+              <div class="key-us">Rescue: (</div>
+            </div>
+            <div class="keycap space" data-code="Space">
+              <div class="key-top"><span>SPACEBAR</span></div>
+              <div class="key-main">Space</div>
+              <div class="key-us">Phím cách</div>
+            </div>
+            <div class="keycap jis-thumb wide-15" data-code="Convert">
+              <div class="key-top"><span>変換</span></div>
+              <div class="key-main">Phải Space</div>
+              <div class="key-us">Rescue: )</div>
+            </div>
+            <div class="keycap jis-thumb wide-15" data-code="KanaMode">
+              <div class="key-top"><span>カタカナ</span></div>
+              <div class="key-main">Kana</div>
+              <div class="key-us">Rescue: =</div>
+            </div>
+          </div>
+        </div>
+
+        <input
+          type="text"
+          id="liveInput"
+          class="test-input mono"
+          placeholder="👉 Bấm vào đây rồi gõ thử Shift+8, Shift+9, Shift+0, Shift+- và phím cạnh Backspace để xem kết quả..."
+        />
+
+        <!-- Telemetry Counters -->
+        <div class="telemetry-grid mono">
+          <div class="telemetry-item">
+            <div style="font-size: 0.7rem; color: var(--text-dim);">MÃ VẬT LÝ (e.code)</div>
+            <div id="telCode" style="font-size: 1rem; font-weight: 700; color: var(--cyan);">Chờ bấm phím...</div>
+          </div>
+          <div class="telemetry-item">
+            <div style="font-size: 0.7rem; color: var(--text-dim);">KÝ TỰ XUẤT RA (e.key)</div>
+            <div id="telKey" style="font-size: 1rem; font-weight: 700; color: var(--accent);">—</div>
+          </div>
+          <div class="telemetry-item">
+            <div style="font-size: 0.7rem; color: var(--text-dim);">TRẠNG THÁI SHIFT</div>
+            <div id="telShift" style="font-size: 1rem; font-weight: 700;">OFF</div>
+          </div>
+          <div class="telemetry-item">
+            <div style="font-size: 0.7rem; color: var(--text-dim);">CỤM ()= NHẬN TÍN HIỆU</div>
+            <div id="telZone" style="font-size: 1rem; font-weight: 700; color: var(--emerald);">0 / 6 phím</div>
+          </div>
+        </div>
+
+        <!-- Auto Verdict Box -->
+        <div class="verdict-box" id="verdictBox">
+          <iconify-icon icon="solar:stethoscope-bold-duotone" style="font-size: 1.55rem; color: var(--accent); flex-shrink: 0; margin-top: 2px;"></iconify-icon>
+          <div>
+            <div style="font-weight: 700; font-size: 0.92rem; margin-bottom: 0.2rem;" id="verdictTitle">
+              CHẨN ĐOÁN TỰ ĐỘNG: Hãy thử bấm giữ Shift + 8, Shift + 9, và Shift + phím dấu trừ (-)
+            </div>
+            <div style="font-size: 0.83rem; color: var(--text-muted);" id="verdictDesc">
+              Nếu ô phím trên màn hình <strong>sáng màu xanh lá</strong> nhưng ký tự hiện ra là <code>*</code>, <code>(</code>, <code>_</code> thay vì <code>(</code>, <code>)</code>, <code>=</code> thì <strong>mạch bàn phím sống 100%</strong> — chỉ do Windows đang để chuẩn Mỹ (US) trên mặt phím Nhật (JIS). Chạy <strong>Lệnh 1 → Chọn [1]</strong> là hết ngay!
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 03: WHY ()= IS SHIFTED ON JAPANESE SURFACE LAPTOPS -->
+      <section class="aura-section" style="padding-bottom: 0.5rem;">
+        <span class="aura-corner-sq tl"></span>
+        <span class="aura-corner-sq tr"></span>
+
+        <div class="pill-tag mono" style="margin-bottom: 0.4rem;">
+          <iconify-icon icon="solar:book-bookmark-bold-duotone"></iconify-icon>
+          <span>03 // BẢNG ĐỐI CHIẾU NGUYÊN NHÂN &amp; 3 PHƯƠNG ÁN XỬ LÝ</span>
+        </div>
+        <h2 class="display" style="font-size: 1.25rem;">
+          Vì Sao Surface Nội Địa Nhật Luôn Bị Nhầm Là "Lỗi Cụm Phím <code>()=</code>"?
+        </h2>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Vị Trí Nút Vật Lý</th>
+                <th>Ký Tự In Trên Phím Nhật (JIS 106)</th>
+                <th>Khi Windows Để Chuẩn Mỹ (US 101)</th>
+                <th>Sau Khi Chạy Fix [1] (Hybrid Instant)</th>
+                <th>Nếu Đứt Mạch Vật Lý → Chạy Fix [2] (Rescue)</th>
+              </tr>
+            </thead>
+            <tbody class="mono">
+              <tr>
+                <td><strong>Shift + Phím số 8</strong></td>
+                <td style="color: var(--emerald); font-weight: 700;">( (Mở ngoặc đơn)</td>
+                <td style="color: var(--accent);">Ra dấu * (Sao)</td>
+                <td style="color: var(--emerald); font-weight: 700;">Ra đúng dấu (</td>
+                <td>Bấm nút <strong>無変換 (Trái Space)</strong> hoặc <strong>F9</strong> → ra <strong>(</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Shift + Phím số 9</strong></td>
+                <td style="color: var(--emerald); font-weight: 700;">) (Đóng ngoặc đơn)</td>
+                <td style="color: var(--accent);">Ra dấu ( (Mở ngoặc)</td>
+                <td style="color: var(--emerald); font-weight: 700;">Ra đúng dấu )</td>
+                <td>Bấm nút <strong>変換 (Phải Space)</strong> hoặc <strong>F10</strong> → ra <strong>)</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Shift + Phím số 0</strong></td>
+                <td style="color: var(--text-muted);">Trống (Không có ký tự)</td>
+                <td style="color: var(--cyan);">Ra dấu )</td>
+                <td style="color: var(--emerald); font-weight: 700;">Ra luôn dấu ) (tiện cả 2 kiểu)</td>
+                <td>Giữ <strong>Shift + 無変換/変換</strong> để gõ số <strong>8 / 9</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Shift + Phím dấu trừ (-)</strong></td>
+                <td style="color: var(--emerald); font-weight: 700;">= (Dấu bằng)</td>
+                <td style="color: var(--accent);">Ra dấu _ (Gạch dưới)</td>
+                <td style="color: var(--emerald); font-weight: 700;">Ra đúng dấu =</td>
+                <td>Bấm nút <strong>カタカナ / ¥</strong> hoặc <strong>F11</strong> → ra <strong>=</strong> (Shift ra <strong>+</strong>)</td>
+              </tr>
+              <tr>
+                <td><strong>Phím cạnh dấu trừ (Nút ^)</strong></td>
+                <td style="color: var(--text-muted);">^ và ~</td>
+                <td style="color: var(--cyan);">Ra dấu = và +</td>
+                <td style="color: var(--emerald); font-weight: 700;">Bấm thường ra =, giữ Shift ra +</td>
+                <td>Bấm nút <strong>_ (Cạnh Shift phải)</strong> hoặc <strong>F12</strong> → ra <strong>- / _</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    // Theme Switcher
+    const themeBtn = document.getElementById('themeToggle');
+    themeBtn.addEventListener('click', () => {
+      const html = document.documentElement;
+      const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+    });
+
+    // Copy Helper
+    function copyText(id, btn) {
+      const text = document.getElementById(id).innerText.trim();
+      navigator.clipboard.writeText(text).then(() => {
+        const span = btn.querySelector('span');
+        const old = span.innerText;
+        span.innerText = 'Đã Copy!';
+        setTimeout(() => { span.innerText = old; }, 1800);
+      });
+    }
+
+    // Live Hardware Keyboard Tester
+    const testedTargets = new Set();
+    const telCode = document.getElementById('telCode');
+    const telKey = document.getElementById('telKey');
+    const telShift = document.getElementById('telShift');
+    const telZone = document.getElementById('telZone');
+    const verdictTitle = document.getElementById('verdictTitle');
+    const verdictDesc = document.getElementById('verdictDesc');
+
+    window.addEventListener('keydown', (e) => {
+      telCode.innerText = e.code || 'Unknown';
+      telKey.innerText = e.key === ' ' ? 'Space' : e.key;
+      telShift.innerText = e.shiftKey ? 'ON (Đang giữ Shift)' : 'OFF';
+      telShift.style.color = e.shiftKey ? 'var(--emerald)' : 'var(--text-main)';
+
+      const cap = document.querySelector(`.keycap[data-code="${e.code}"]`);
+      if (cap) {
+        cap.classList.add('active', 'tested');
+        if (cap.dataset.target === '1') {
+          testedTargets.add(e.code);
+          telZone.innerText = `${testedTargets.size} / 6 phím sống`;
+        }
+      }
+
+      // Auto-diagnose JIS vs US layout mismatch on ()= keys
+      if (e.shiftKey && e.code === 'Digit8' && e.key === '*') {
+        verdictTitle.innerText = 'PHÁT HIỆN CHÍNH XÁC NGUYÊN NHÂN: Phím số 8 SỐNG 100%, đang lệch chuẩn JIS ↔ US!';
+        verdictDesc.innerHTML = 'Bạn vừa bấm <strong>Shift + 8</strong> (trên mặt phím Nhật in dấu <code>(</code>) nhưng Windows đang nạp driver chuẩn Mỹ (<code>kbd101.dll</code>) nên xuất ra dấu <code>*</code>. <strong>Không phải hỏng phần cứng!</strong> Hãy bấm <strong>Copy Lệnh 1</strong> ở trên → dán vào PowerShell → chọn <strong>[1]</strong> là gõ đúng ngay!';
+      } else if (e.shiftKey && e.code === 'Digit9' && e.key === '(') {
+        verdictTitle.innerText = 'PHÁT HIỆN CHÍNH XÁC NGUYÊN NHÂN: Phím số 9 SỐNG 100%, đang lệch chuẩn JIS ↔ US!';
+        verdictDesc.innerHTML = 'Bạn vừa bấm <strong>Shift + 9</strong> (trên mặt phím Nhật in dấu <code>)</code>) nhưng Windows xuất ra dấu <code>(</code> theo chuẩn Mỹ. <strong>Phần cứng hoàn toàn bình thường!</strong> Chạy <strong>Lệnh 1 → Chọn [1]</strong> để khớp ngay với mặt phím Nhật!';
+      } else if (e.shiftKey && e.code === 'Minus' && e.key === '_') {
+        verdictTitle.innerText = 'PHÁT HIỆN CHÍNH XÁC NGUYÊN NHÂN: Phím dấu trừ (-) SỐNG 100%, đang lệch chuẩn JIS ↔ US!';
+        verdictDesc.innerHTML = 'Bạn vừa bấm <strong>Shift + -</strong> (trên mặt phím Nhật in dấu <code>=</code>) nhưng Windows xuất ra dấu <code>_</code> theo chuẩn Mỹ. Chạy <strong>Lệnh 1 → Chọn [1]</strong> là bấm <code>Shift + -</code> hoặc nút cạnh đó đều ra <code>=</code> ngay lập tức!';
+      } else if (e.shiftKey && ((e.code === 'Digit8' && e.key === '(') || (e.code === 'Digit9' && e.key === ')') || (e.code === 'Minus' && e.key === '='))) {
+        verdictTitle.innerText = 'TUYỆT VỜI: Cụm phím ()= đã xuất đúng 100% theo mặt phím Nhật (JIS)!';
+        verdictDesc.innerHTML = `Tín hiệu <code>${e.code}</code> đã xuất ra đúng ký tự <strong><code>${e.key}</code></strong> in trên mặt phím Surface Nội Địa Nhật.`;
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      telShift.innerText = e.shiftKey ? 'ON (Đang giữ Shift)' : 'OFF';
+      const cap = document.querySelector(`.keycap[data-code="${e.code}"]`);
+      if (cap) cap.classList.remove('active');
+    });
+
+    function resetTester() {
+      testedTargets.clear();
+      telZone.innerText = '0 / 6 phím';
+      telCode.innerText = 'Chờ bấm phím...';
+      telKey.innerText = '—';
+      document.getElementById('liveInput').value = '';
+      document.querySelectorAll('.keycap').forEach(el => el.classList.remove('active', 'tested'));
+    }
+
+    // Signature 6: GSAP Masked Word Reveal with prefers-reduced-motion guard
+    (function initReveal() {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || typeof gsap === 'undefined') return;
+      document.querySelectorAll('[data-aura-reveal]').forEach(el => {
+        const words = el.innerText.trim().split(/\s+/);
+        el.innerHTML = words.map(w => `<span class="word-mask"><span class="word-inner">${w}</span></span>`).join(' ');
+        gsap.from(el.querySelectorAll('.word-inner'), {
+          y: '110%',
+          rotation: 3,
+          duration: 0.65,
+          stagger: 0.035,
+          ease: 'power3.out'
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
